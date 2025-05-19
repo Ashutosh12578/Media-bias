@@ -25,8 +25,8 @@ st.write('This app is for Bias detection and Summarization of News Articles !')
 st.sidebar.title('Media Bias Detection and Summarization')
 
     
-tokenizer = pickle.load(open('tokenizer (1).pkl', 'rb'))
-model_lstm = load_model("lstm_model.h5")
+tokenizer = pickle.load(open('tokenizer (2).pkl', 'rb'))
+model_lstm = load_model("lstm_model (1).h5")
 model_bilstm = load_model("bilstm_model (1).h5")
 model_rnn = load_model("rnn_model (1).h5")
 
