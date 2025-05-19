@@ -25,8 +25,8 @@ st.write('This app is for Bias detection and Summarization of News Articles !')
 st.sidebar.title('Media Bias Detection and Summarization')
 
     
-tokenizer = pickle.load(open('tokenizer (2).pkl', 'rb'))
-model_lstm = load_model("lstm_model (1).h5")
+tokenizer = pickle.load(open('tokenizer (1).pkl', 'rb'))
+model_lstm = load_model("lstm_model.h5")
 model_bilstm = load_model("bilstm_model (1).h5")
 model_rnn = load_model("rnn_model (1).h5")
 
@@ -103,6 +103,56 @@ if st.button("Detect Bias") and text:
         st.markdown("✋ This article appears **center**.")
 
     
+GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
+GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
 
 
+GROQ_HEADERS = {
+    "Authorization": f"Bearer {GROQ_API_KEY}",
+    "Content-Type": "application/json"
+}
+
+
+def summarize_with_groq(text, model="meta-llama/llama-4-scout-17b-16e-instruct"):
+    try:
+        payload = {
+            "model": model,
+            "messages": [
+                {"role": "user", "content": f"Summarize the article:\n\n{text}"}
+            ],
+            "temperature": 0.7,
+            "max_tokens": 512
+        }
+
+        response = requests.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers=GROQ_HEADERS,
+            json=payload,
+            timeout=60
+        )
+        data = response.json()
+        return data["choices"][0]["message"]["content"]
+        
+    
+    except Exception as e:
+        return f"Error: {e}"
+        
+
+# Streamlit UI
+st.title("Article Summarizer")
+model_choice = st.selectbox("Choose Model", ["Groq - LLaMA"])
+user_article = st.text_area("Your Text Here...")
+
+if st.button("Summarize Article") and user_article:
+    if model_choice == "Gemini ":
+        summary = summarize_with_gemini(user_article)    
+        
+
+    elif model_choice == "Groq - LLaMA":
+        summary = summarize_with_groq(user_article, model="meta-llama/llama-4-scout-17b-16e-instruct")
+       
+
+    with st.container():
+        st.write("summarized article:")
+        st.write(summary)
         
